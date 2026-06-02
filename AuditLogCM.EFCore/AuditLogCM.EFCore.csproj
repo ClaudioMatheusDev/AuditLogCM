@@ -4,6 +4,14 @@
     <ProjectReference Include="..\AuditLogCM.Core\AuditLogCM.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Extensions\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.16" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
