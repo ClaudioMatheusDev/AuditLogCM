@@ -1,8 +1,11 @@
 ﻿
+using System.ComponentModel.DataAnnotations;
+
 namespace AuditLogCM.Core.Models
 {
     public class AuditEntry
     {
+        [Key]
         public Guid IDAuditEntry { get; set; }
         public string IDTabelaAfetada { get; set; } = string.Empty;
         public string NomeTabelaAfetada { get; set; } = string.Empty;
