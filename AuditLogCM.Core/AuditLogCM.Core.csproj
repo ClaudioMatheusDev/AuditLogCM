@@ -6,4 +6,17 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageId>AuditLogCM</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>claudio.silva</Authors>
+    <Company>claudio.silva</Company>
+    <Description>Biblioteca para auditoria de ações em aplicações .NET, integração com EF Core e serialização JSON.</Description>
+    <PackageTags>audit;efcore;auditoria;logging</PackageTags>
+    <PackageProjectUrl>https://github.com/ClaudioMatheusDev/AuditLogCM</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/ClaudioMatheusDev/AuditLogCM.git</RepositoryUrl>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+
 </Project>
