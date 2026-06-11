@@ -1,0 +1,29 @@
+name: Publish AuditLogCM.EFCore to NuGet
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Build
+        run: dotnet build --configuration Release
+
+      - name: Pack
+        run: dotnet pack AuditLogCM.EFCore/AuditLogCM.EFCore.csproj --configuration Release
+
+      - name: Publish to NuGet
+        run: dotnet nuget push AuditLogCM.EFCore/bin/Release/*.nupkg --source https://api.nuget.org/v3/index.json
