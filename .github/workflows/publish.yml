@@ -25,5 +25,8 @@ jobs:
       - name: Pack
         run: dotnet pack AuditLogCM.EFCore/AuditLogCM.EFCore.csproj --configuration Release
 
+      - name: Authenticate to NuGet
+        run: dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org --username ClaudioMatheusDev --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text
+
       - name: Publish to NuGet
-        run: dotnet nuget push AuditLogCM.EFCore/bin/Release/*.nupkg --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push AuditLogCM.EFCore/bin/Release/*.nupkg --source nuget.org --skip-duplicate
