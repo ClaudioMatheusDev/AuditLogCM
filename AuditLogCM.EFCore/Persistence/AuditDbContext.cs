@@ -1,7 +1,7 @@
 ﻿using AuditLogCM.Core.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace AuditLogCM.EFCore.DbContext
+namespace AuditLogCM.EFCore.Persistence
 {
     public class AuditDbContext : Microsoft.EntityFrameworkCore.DbContext
     {

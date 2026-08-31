@@ -17,6 +17,7 @@
     <PackageProjectUrl>https://github.com/ClaudioMatheusDev/AuditLogCM</PackageProjectUrl>
     <RepositoryUrl>https://github.com/ClaudioMatheusDev/AuditLogCM.git</RepositoryUrl>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
 </Project>
