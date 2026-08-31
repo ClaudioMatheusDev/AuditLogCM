@@ -21,7 +21,7 @@ namespace AuditLogCM.EFCore.Interceptors
         private readonly AuditOptions _opcoes;
         private readonly ILogger<AuditInterceptor> _logger;
 
-        private List<AuditEntry> _entradasPendentes = new();
+        private List<AuditoriaPendente> _entradasPendentes = new();
 
         public AuditInterceptor(
             IAuditSerializer serializador,
@@ -60,7 +60,8 @@ namespace AuditLogCM.EFCore.Interceptors
             {
                 try
                 {
-                    _context.AuditEntries.AddRange(_entradasPendentes);
+                    CorrigirChavesGeradasPeloBanco();
+                    _context.AuditEntries.AddRange(_entradasPendentes.Select(p => p.Entrada));
                     _context.SaveChanges();
                 }
                 catch (Exception ex)
@@ -86,7 +87,8 @@ namespace AuditLogCM.EFCore.Interceptors
             {
                 try
                 {
-                    _context.AuditEntries.AddRange(_entradasPendentes);
+                    CorrigirChavesGeradasPeloBanco();
+                    _context.AuditEntries.AddRange(_entradasPendentes.Select(p => p.Entrada));
                     await _context.SaveChangesAsync(cancellationToken);
                 }
                 catch (Exception ex)
@@ -126,8 +128,34 @@ namespace AuditLogCM.EFCore.Interceptors
                 if (entry.State == EntityState.Added || entry.State == EntityState.Modified || entry.State == EntityState.Deleted)
                 {
                     var auditEntry = ConstruirAuditEntry(entry);
-                    _entradasPendentes.Add(auditEntry);
+
+                    // Entidades com chave gerada pelo banco (ex: IDENTITY) ainda têm um valor
+                    // temporário nesse momento; o valor real só existe após o INSERT ser executado.
+                    var chaveTemporaria = entry.State == EntityState.Added
+                        && entry.Properties.Any(p => p.Metadata.IsPrimaryKey() && p.IsTemporary);
+
+                    _entradasPendentes.Add(new AuditoriaPendente
+                    {
+                        Entrada = auditEntry,
+                        EntradaOrigem = chaveTemporaria ? entry : null
+                    });
                 }
+            }
+        }
+
+        private void CorrigirChavesGeradasPeloBanco()
+        {
+            foreach (var pendente in _entradasPendentes)
+            {
+                if (pendente.EntradaOrigem is not { } entry) continue;
+
+                var propriedadesChave = entry.Properties.Where(p => p.Metadata.IsPrimaryKey()).ToList();
+                pendente.Entrada.IDTabelaAfetada = string.Join(",", propriedadesChave.Select(p => p.CurrentValue?.ToString() ?? string.Empty));
+
+                var valoresNovosDict = entry.CurrentValues.Properties
+                    .Where(p => !DeveIgnorarPropriedade(p))
+                    .ToDictionary(p => p.Name, p => entry.CurrentValues[p]);
+                pendente.Entrada.ValoresNovos = _serializador.Serializar(valoresNovosDict);
             }
         }
 
@@ -177,6 +205,18 @@ namespace AuditLogCM.EFCore.Interceptors
                 ValoresAnteriores = valoresAnteriores,
                 ValoresNovos = valoresNovos
             };
+        }
+
+        private sealed class AuditoriaPendente
+        {
+            public required AuditEntry Entrada { get; init; }
+
+            /// <summary>
+            /// Preenchido apenas quando a chave primária ainda é temporária no momento da captura
+            /// (entidade nova com chave gerada pelo banco). Usado para corrigir o registro com o
+            /// valor real após o SaveChanges principal ter sucesso.
+            /// </summary>
+            public EntityEntry? EntradaOrigem { get; init; }
         }
     }
 }
