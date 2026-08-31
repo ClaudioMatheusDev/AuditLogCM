@@ -13,10 +13,18 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.16" />
   </ItemGroup>
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+<PropertyGroup>
+  <TargetFramework>net9.0</TargetFramework>
+  <ImplicitUsings>enable</ImplicitUsings>
+  <Nullable>enable</Nullable>
+
+  <PackageId>AuditLogCM.EFCore</PackageId>
+  <Version>1.0.0</Version>
+  <Authors>ClaudioMatheusDev</Authors>
+  <Description>Interceptor do EF Core para o pacote AuditLogCM. Captura operações do SaveChanges e registra auditoria automática.</Description>
+  <PackageTags>audit;efcore;aspnetcore;interceptor;dotnet</PackageTags>
+  <RepositoryUrl>https://github.com/ClaudioMatheusDev/AuditLogCM</RepositoryUrl>
+  <PackageLicenseExpression>MIT</PackageLicenseExpression>
+</PropertyGroup>
 
 </Project>
