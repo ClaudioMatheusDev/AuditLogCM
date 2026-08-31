@@ -19,7 +19,7 @@
   <Nullable>enable</Nullable>
 
   <PackageId>AuditLogCM.EFCore</PackageId>
-  <Version>2.0.0</Version>
+  <Version>2.0.1</Version>
   <Authors>ClaudioMatheusDev</Authors>
   <Description>Interceptor do EF Core para o pacote AuditLogCM. Captura operações do SaveChanges e registra auditoria automática.</Description>
   <PackageTags>audit;efcore;aspnetcore;interceptor;dotnet</PackageTags>

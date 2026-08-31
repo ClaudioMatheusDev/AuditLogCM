@@ -5,6 +5,7 @@ using AuditLogCM.EFCore.Persistence;
 using AuditLogCM.EFCore.Interceptors;
 using AuditLogCM.EFCore.Serializers;
 using FluentAssertions;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 
@@ -311,6 +312,49 @@ namespace AuditLogCM.Tests.Core
 
             var entrada = auditDbContext.AuditEntries.Single();
             entrada.IDTabelaAfetada.Should().Be("10,20");
+        }
+
+        [Fact]
+        public void DeveRegistrarIdRealGeradoPeloBanco_QuandoChavePrimariaForAutoincrementada()
+        {
+            // EF InMemory não usa chaves temporárias como os providers relacionais reais (SQL Server,
+            // SQLite, PostgreSQL) usam antes do INSERT — por isso esse cenário exige SQLite de verdade.
+            using var appConnection = new SqliteConnection("Data Source=:memory:");
+            appConnection.Open();
+
+            using var auditConnection = new SqliteConnection("Data Source=:memory:");
+            auditConnection.Open();
+
+            var auditOptions = new DbContextOptionsBuilder<AuditDbContext>()
+                .UseSqlite(auditConnection)
+                .Options;
+
+            using var auditDbContext = new AuditDbContext(auditOptions);
+            auditDbContext.Database.EnsureCreated();
+
+            var mockResolver = new Mock<ICurrentUserResolver>();
+            mockResolver.Setup(x => x.GetCurrentUserId()).Returns("test_user");
+            mockResolver.Setup(x => x.GetCurrentUserName()).Returns("Test User");
+
+            var interceptor = new AuditInterceptor(new JsonAuditSerializer(), mockResolver.Object, auditDbContext);
+
+            var appOptions = new DbContextOptionsBuilder<AppDbContext>()
+                .UseSqlite(appConnection)
+                .AddInterceptors(interceptor)
+                .Options;
+
+            using var appDbContext = new AppDbContext(appOptions);
+            appDbContext.Database.EnsureCreated();
+
+            var produto = new Produto { Nome = "Produto Autoincrementado" };
+            appDbContext.Produtos.Add(produto);
+            appDbContext.SaveChanges();
+
+            produto.Id.Should().BePositive();
+
+            var entrada = auditDbContext.AuditEntries.Single();
+            entrada.IDTabelaAfetada.Should().Be(produto.Id.ToString());
+            entrada.ValoresNovos.Should().Contain($"\"Id\":{produto.Id}");
         }
     }
 
